@@ -47,7 +47,7 @@ export default function LoginPage() {
             type="button"
             onClick={() => setMode("signin")}
             variant="ghost"
-            className={`h-10 rounded-full text-sm font-medium transition-colors hover:bg-transparent ${
+            className={`cursor-pointer h-10 rounded-full text-sm font-medium transition-colors hover:bg-transparent ${
               mode === "signin"
                 ? "bg-white text-zinc-900 shadow-sm hover:bg-white dark:bg-zinc-800 dark:text-zinc-50 dark:hover:bg-zinc-800"
                 : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
@@ -60,7 +60,7 @@ export default function LoginPage() {
             type="button"
             onClick={() => setMode("signup")}
             variant="ghost"
-            className={`h-10 rounded-full text-sm font-medium transition-colors hover:bg-transparent ${
+            className={`cursor-pointer h-10 rounded-full text-sm font-medium transition-colors hover:bg-transparent ${
               mode === "signup"
                 ? "bg-white text-zinc-900 shadow-sm hover:bg-white dark:bg-zinc-800 dark:text-zinc-50 dark:hover:bg-zinc-800"
                 : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"

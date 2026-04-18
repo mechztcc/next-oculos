@@ -1,85 +1,156 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FieldStatusLabel } from "@/components/forms/field-status-label";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+
+import type { SignInFormValues } from "@/types/forms";
 
 export function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    clearErrors,
+    setError,
+    getFieldState,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<SignInFormValues>({
+    defaultValues: {
+      email: "",
+      password: "",
+      rememberMe: true,
+    },
+  });
 
-    setError(null);
+  const onSubmit = handleSubmit(async (values) => {
+    clearErrors();
 
-    if (!email.trim()) {
-      setError("Informe seu email.");
-      return;
-    }
-
-    if (!password) {
-      setError("Informe sua senha.");
-      return;
-    }
-
-    setIsSubmitting(true);
     try {
-      await new Promise((r) => setTimeout(r, 600));
-      // Placeholder: integrar com /app/api/auth/login (route handler) depois
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: values.email,
+          password: values.password,
+        }),
+      });
+
+      const json = (await res.json().catch(() => null)) as
+        | {
+            ok: true;
+            data: { user: { id: string; name: string; email: string; role: string } };
+          }
+        | {
+            ok: false;
+            error: { code: string; message: string; field?: string };
+          }
+        | null;
+
+      if (!json || json.ok === false) {
+        const error = json?.error;
+
+        if (error?.field === "email") {
+          setError("email", { message: error.message });
+          return;
+        }
+
+        if (error?.field === "password") {
+          setError("password", { message: error.message });
+          return;
+        }
+
+        if (error?.code === "INVALID_CREDENTIALS") {
+          setError("root", { message: "Credenciais inválidas." });
+          return;
+        }
+
+        setError("root", { message: error?.message ?? "Não foi possível entrar." });
+        return;
+      }
+
+      // TODO: persistir sessão (cookie/jwt) e redirecionar
     } catch {
-      setError("Não foi possível entrar. Tente novamente.");
-    } finally {
-      setIsSubmitting(false);
+      setError("root", { message: "Não foi possível entrar. Tente novamente." });
     }
-  }
+  });
+
+  const emailValue = watch("email");
+  const passwordValue = watch("password");
+
+  const emailState = getFieldState("email");
+  const passwordState = getFieldState("password");
+
+  const showEmailStatus = Boolean(emailValue) && (emailState.isTouched || emailState.isDirty);
+  const showPasswordStatus =
+    Boolean(passwordValue) && (passwordState.isTouched || passwordState.isDirty);
 
   return (
     <form onSubmit={onSubmit} className="space-y-3">
       <div>
-        <Label
+        <FieldStatusLabel
           htmlFor="email"
+          label="Email"
+          showStatus={showEmailStatus}
+          invalid={emailState.invalid}
           className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-        >
-          Email
-        </Label>
+        />
         <div className="relative">
           <Input
             id="email"
             type="email"
             autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
             placeholder="Digite seu email"
             className="h-12 rounded-full border-zinc-200 bg-white px-4 text-sm text-zinc-900 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50"
             data-testid="login-email-input"
+            aria-invalid={Boolean(errors.email) || undefined}
+            {...register("email", {
+              required: "Informe seu email.",
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "Informe um email válido.",
+              },
+            })}
           />
         </div>
+        {errors.email?.message ? (
+          <p
+            className="mt-1 text-xs text-red-500"
+            data-testid="login-email-error"
+            role="alert"
+          >
+            {errors.email.message}
+          </p>
+        ) : null}
       </div>
 
       <div>
-        <Label
+        <FieldStatusLabel
           htmlFor="password"
+          label="Senha"
+          showStatus={showPasswordStatus}
+          invalid={passwordState.invalid}
           className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-        >
-          Senha
-        </Label>
+        />
         <div className="relative">
           <Input
             id="password"
             type={showPassword ? "text" : "password"}
             autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
             placeholder="Digite sua senha"
             className="h-12 rounded-full border-zinc-200 bg-white px-4 pr-12 text-sm text-zinc-900 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50"
             data-testid="login-password-input"
+            aria-invalid={Boolean(errors.password) || undefined}
+            {...register("password", { required: "Informe sua senha." })}
           />
           <Button
             type="button"
@@ -90,19 +161,27 @@ export function SignInForm() {
             data-testid="login-toggle-password-button"
             aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
           >
-            {showPassword ? "Ocultar" : "Mostrar"}
+            {showPassword ? <FontAwesomeIcon icon={faEyeSlash} /> : <FontAwesomeIcon icon={faEye} />}
           </Button>
         </div>
+        {errors.password?.message ? (
+          <p
+            className="mt-1 text-xs text-red-500"
+            data-testid="login-password-error"
+            role="alert"
+          >
+            {errors.password.message}
+          </p>
+        ) : null}
       </div>
 
       <div className="flex items-center justify-between gap-4">
         <label className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
           <input
             type="checkbox"
-            checked={rememberMe}
-            onChange={(e) => setRememberMe(e.target.checked)}
             className="size-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-500 dark:border-zinc-700"
             data-testid="login-rememberme-checkbox"
+            {...register("rememberMe")}
           />
           Lembrar de mim
         </label>
@@ -117,13 +196,13 @@ export function SignInForm() {
         </Button>
       </div>
 
-      {error ? (
+      {errors.root?.message ? (
         <div
           className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200"
           data-testid="login-error-alert"
           role="alert"
         >
-          {error}
+          {errors.root.message}
         </div>
       ) : null}
 
@@ -142,14 +221,6 @@ export function SignInForm() {
           ou
         </div>
       </div>
-
-      <Button
-        type="button"
-        className="h-12 w-full rounded-full bg-zinc-900 text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
-        data-testid="login-apple-button"
-      >
-        Entrar com Apple
-      </Button>
 
       <Button
         type="button"

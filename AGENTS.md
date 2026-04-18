@@ -32,6 +32,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 2. Sempre que possivel, criar codigo orientado a tipos com TypeScript estrito.
 3. Manter funcoes pequenas, nomes descritivos e baixo acoplamento entre modulos.
 4. Em features novas, incluir validacoes e tratamento de erros com mensagens objetivas.
+5. Em formularios, usar `useForm()` (ex.: react-hook-form) sempre que possivel, evitando estado manual com `useState`.
 
 ## Testes E2E (Cypress)
 
