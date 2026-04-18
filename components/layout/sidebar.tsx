@@ -13,7 +13,7 @@ const navItems = [
   },
   {
     href: "/historico",
-    label: "Histórico",
+    label: "Minhas ofertas",
     icon: History,
     testId: "sidebar-historico-link",
   },
