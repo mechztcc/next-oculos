@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { toast } from "sonner";
 
 import type { SignUpFormValues } from "@/types/forms";
 
@@ -19,6 +20,7 @@ export function SignUpForm() {
     handleSubmit,
     clearErrors,
     setError,
+    reset,
     getFieldState,
     watch,
     formState: { errors, isSubmitting },
@@ -62,28 +64,30 @@ export function SignUpForm() {
 
         if (error?.field === "name") {
           setError("name", { message: error.message });
+          toast.error(error.message);
           return;
         }
 
         if (error?.field === "email") {
           setError("email", { message: error.message });
+          toast.error(error.message);
           return;
         }
 
         if (error?.field === "password") {
           setError("password", { message: error.message });
+          toast.error(error.message);
           return;
         }
 
-        setError("root", { message: error?.message ?? "Não foi possível criar a conta." });
+        toast.error(error?.message ?? "Não foi possível criar a conta.");
         return;
       }
 
-      // TODO: persistir sessão (cookie/jwt) e redirecionar
+      toast.success("Conta criada com sucesso!");
+      reset();
     } catch {
-      setError("root", {
-        message: "Não foi possível criar a conta. Tente novamente.",
-      });
+      toast.error("Não foi possível criar a conta. Tente novamente.");
     }
   });
 
@@ -214,16 +218,6 @@ export function SignUpForm() {
           </p>
         ) : null}
       </div>
-
-      {errors.root?.message ? (
-        <div
-          className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-500 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200"
-          data-testid="login-error-alert"
-          role="alert"
-        >
-          {errors.root.message}
-        </div>
-      ) : null}
 
       <Button
         type="submit"

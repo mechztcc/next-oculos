@@ -72,9 +72,6 @@ export async function POST(req: Request) {
     });
     return NextResponse.json({ ok: true, data: { user } }, { status: 201 });
   } catch (err: unknown) {
-
-    console.log(err);
-    
     const code =
       err && typeof err === "object" && "code" in err ? String((err as any).code) : "UNKNOWN";
 

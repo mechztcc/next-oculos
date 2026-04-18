@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { FieldStatusLabel } from "@/components/forms/field-status-label";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { toast } from "sonner";
 
 import type { SignInFormValues } from "@/types/forms";
 
@@ -19,6 +20,7 @@ export function SignInForm() {
     handleSubmit,
     clearErrors,
     setError,
+    reset,
     getFieldState,
     watch,
     formState: { errors, isSubmitting },
@@ -61,26 +63,30 @@ export function SignInForm() {
 
         if (error?.field === "email") {
           setError("email", { message: error.message });
+          toast.error(error.message);
           return;
         }
 
         if (error?.field === "password") {
           setError("password", { message: error.message });
+          toast.error(error.message);
           return;
         }
 
         if (error?.code === "INVALID_CREDENTIALS") {
-          setError("root", { message: "Credenciais inválidas." });
+          toast.error("Credenciais inválidas.");
           return;
         }
 
-        setError("root", { message: error?.message ?? "Não foi possível entrar." });
+        toast.error(error?.message ?? "Não foi possível entrar.");
         return;
       }
 
+      toast.success("Login realizado com sucesso!");
+      reset();
       // TODO: persistir sessão (cookie/jwt) e redirecionar
     } catch {
-      setError("root", { message: "Não foi possível entrar. Tente novamente." });
+      toast.error("Não foi possível entrar. Tente novamente.");
     }
   });
 
@@ -195,16 +201,6 @@ export function SignInForm() {
           Esqueci minha senha
         </Button>
       </div>
-
-      {errors.root?.message ? (
-        <div
-          className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200"
-          data-testid="login-error-alert"
-          role="alert"
-        >
-          {errors.root.message}
-        </div>
-      ) : null}
 
       <Button
         type="submit"
