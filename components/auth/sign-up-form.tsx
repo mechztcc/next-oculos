@@ -222,7 +222,7 @@ export function SignUpForm() {
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="mt-2 h-12 w-full rounded-full bg-blue-600 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+        className="mt-2 h-12 w-full rounded-full text-sm font-semibold text-white shadow-sm transition"
         data-testid="login-submit-button"
       >
         {isSubmitting ? "Criando..." : "Criar conta"}

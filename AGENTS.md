@@ -32,7 +32,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 2. Sempre que possivel, criar codigo orientado a tipos com TypeScript estrito.
 3. Manter funcoes pequenas, nomes descritivos e baixo acoplamento entre modulos.
 4. Em features novas, incluir validacoes e tratamento de erros com mensagens objetivas.
+5. Evitar criar `function foo(){}` fora do componente quando a função é usada somente por ele. Prefira declarar helpers dentro do componente como `const foo = () => {}`.
 5. Em formularios, usar `useForm()` (ex.: react-hook-form) sempre que possivel, evitando estado manual com `useState`.
+6. Sempre que possível, `page.tsx` deve ser SSR (Server Component) por padrão. Se precisar de `"use client"`, criar um componente separado com `"use client"` e importá-lo na `page.tsx`.
 
 ## Testes E2E (Cypress)
 

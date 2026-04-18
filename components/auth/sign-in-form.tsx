@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import { toast } from "sonner";
 import type { SignInFormValues } from "@/types/forms";
 
 export function SignInForm() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -90,6 +92,7 @@ export function SignInForm() {
       localStorage.setItem("user", JSON.stringify(json.data.user));
       toast.success("Login realizado com sucesso!");
       reset();
+      router.push("/home");
       // TODO: persistir sessão (cookie/jwt) e redirecionar
     } catch {
       toast.error("Não foi possível entrar. Tente novamente.");
@@ -211,7 +214,7 @@ export function SignInForm() {
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="mt-2 h-12 w-full rounded-full bg-blue-600 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+        className="mt-2 h-12 w-full rounded-full text-sm font-semibold text-white shadow-sm transition"
         data-testid="login-submit-button"
       >
         {isSubmitting ? "Entrando..." : "Entrar"}
