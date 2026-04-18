@@ -1,9 +1,9 @@
 "use client";
 
+import type { ElementType } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, ClipboardList, Store } from "lucide-react";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -21,7 +21,7 @@ type ChoiceCard = {
   id: HomeChoice;
   title: string;
   subtitle: string;
-  icon: React.ElementType;
+  icon: ElementType;
   testId: string;
 };
 
@@ -70,9 +70,7 @@ export function HomeOnboarding() {
       return;
     }
 
-    toast.message("Em breve", {
-      description: "O fluxo de venda na plataforma estará disponível em breve.",
-    });
+    router.push("/shop/new");
   };
 
   return (
