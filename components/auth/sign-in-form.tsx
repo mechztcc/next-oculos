@@ -50,7 +50,11 @@ export function SignInForm() {
       const json = (await res.json().catch(() => null)) as
         | {
             ok: true;
-            data: { user: { id: string; name: string; email: string; role: string } };
+            data: {
+              user: { id: string; name: string; email: string; role: string };
+              accessToken: string;
+              tokenType: "Bearer";
+            };
           }
         | {
             ok: false;
@@ -82,6 +86,8 @@ export function SignInForm() {
         return;
       }
 
+      localStorage.setItem("auth:accessToken", json.data.accessToken);
+      localStorage.setItem("user", JSON.stringify(json.data.user));
       toast.success("Login realizado com sucesso!");
       reset();
       // TODO: persistir sessão (cookie/jwt) e redirecionar

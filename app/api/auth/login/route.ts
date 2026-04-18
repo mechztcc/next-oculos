@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { email, object, pipe, safeParse, string, toLowerCase, trim } from "valibot";
 
 import { AuthService } from "@/services/auth.service";
+import { signAccessToken } from "@/lib/jwt";
 
 const loginSchema = object({
   email: pipe(string("Informe seu email."), trim(), toLowerCase(), email("Informe um email válido.")),
@@ -43,11 +44,20 @@ export async function POST(req: Request) {
   try {
     const user = await AuthService.loginUser({ email: userEmail, password });
 
+    const accessToken = await signAccessToken({
+      sub: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    });
+
     return NextResponse.json(
       {
         ok: true,
         data: {
           user,
+          accessToken,
+          tokenType: "Bearer",
         },
       },
       { status: 200 }
